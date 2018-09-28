@@ -1,5 +1,5 @@
 
-hostName="terminal.mujiang.info"
+hostName="120.27.212.27:443"
 VERSION=v8.12.0
 
 HOME_DIR='home'
@@ -37,6 +37,11 @@ then
     createhomedir -c -u moja
   elif [ $osType = "linux" ] ;then
     useradd -s /bin/bash -d /$HOME_DIR/moja  -U moja -m
+    echo "--------------------------------------安装gcc---------------------------------------"
+    g++ -v
+    if [ $? -ne 0 ] ; then
+       yum install gcc-c++ -y
+    fi
   else
     echo "--------------------------------------不支持的系统类型---------------------------------------"
   fi
@@ -48,41 +53,47 @@ else
      pm2path="/Users/moja/.config/nodejs/bin/pm2"
      envRun pm2path kill >/dev/null 2>&1
      envRun pm2path delete all >/dev/null 2>&1
-     rm -r -f /$HOME_DIR/moja/.config/nodejs
-     rm -r -f /$HOME_DIR/moja/.config/remote-terminal-client*
-     rm -r -f /$HOME_DIR/moja/.config/privateKey.js
-     rm -r -f /$HOME_DIR/moja/.config/email.js
-     rm -r -f /$HOME_DIR/moja/.config/npm-cache
-     rm -r -f /$HOME_DIR/moja/.npm
-     rm -r -f /$HOME_DIR/moja/.npmrc
-     rm -r -f /$HOME_DIR/moja/.node-gyp
-     rm -r -f /$HOME_DIR/moja/.pm2
-     rm -r -f /var/tmp/client-logs
-     rm -r -f /var/tmp//var/tmp/client-logs-tar
+     if [ -d "/$HOME_DIR/moja" ]; then
+        rm -r -f /$HOME_DIR/moja/.config/nodejs
+        rm -r -f /$HOME_DIR/moja/.config/remote-terminal-client*
+        rm -r -f /$HOME_DIR/moja/.config/privateKey.js
+        rm -r -f /$HOME_DIR/moja/.config/email.js
+        rm -r -f /$HOME_DIR/moja/.config/npm-cache
+        rm -r -f /$HOME_DIR/moja/.npm
+        rm -r -f /$HOME_DIR/moja/.npmrc
+        rm -r -f /$HOME_DIR/moja/.node-gyp
+        rm -r -f /$HOME_DIR/moja/.pm2
+        rm -r -f /var/tmp/client-logs
+        rm -r -f /var/tmp//var/tmp/client-logs-tar
+     fi
      kill -9 $(ps -ef|grep "/Users/moja/.pm2"|awk '$0 !~/grep/ {print $2}'|tr -s '\n' ' ') >/dev/null 2>&1
      kill -9 $(ps -ef|grep "/Users/moja/.config/remote-terminal-client/app.js"|awk '$0 !~/grep/ {print $2}'|tr -s '\n' ' ') >/dev/null 2>&1
+     sed -i '' '/export PS1/d' /$HOME_DIR/moja/.bashrc
+     sed -i '' '/Users\/moja/d' /$HOME_DIR/moja/.bashrc
   fi
   if [ $osType = "linux" ] ;then
      envRun="sudo -u moja env PATH=$PATH:/home/moja/.config/nodejs/bin"
      pm2path="/home/moja/.config/nodejs/bin/pm2"
      envRun pm2path kill >/dev/null 2>&1
      envRun pm2path delete all >/dev/null 2>&1
-     rm /$HOME_DIR/moja/.config/nodejs -rf
-     rm /$HOME_DIR/moja/remote-terminal-client* -rf
-     rm /$HOME_DIR/moja/.config/privateKey.js -rf
-     rm /$HOME_DIR/moja/.config/email.js -rf
-     rm /$HOME_DIR/moja/.config/npm-cache -rf
-     rm /$HOME_DIR/moja/.npm -rf
-     rm /$HOME_DIR/moja/.npmrc -rf
-     rm /$HOME_DIR/moja/.node-gyp -rf
-     rm /$HOME_DIR/moja/.pm2 -rf
-     rm /var/tmp/client-logs -rf
-     rm /var/tmp//var/tmp/client-logs-tar -rf
-     ps -ef|grep -w '/home/moja/.pm2'|grep -v grep|cut -c 9-15|xargs kill -9 >/dev/null 2>&1
-     ps -ef|grep -w '/home/moja/.config/remote-terminal-client/app.js'|grep -v grep|cut -c 9-15|xargs kill -9 >/dev/null 2>&1
+     if [ -d "/$HOME_DIR/moja" ]; then
+       rm /$HOME_DIR/moja/.config/nodejs -rf
+       rm /$HOME_DIR/moja/remote-terminal-client* -rf
+       rm /$HOME_DIR/moja/.config/privateKey.js -rf
+       rm /$HOME_DIR/moja/.config/email.js -rf
+       rm /$HOME_DIR/moja/.config/npm-cache -rf
+       rm /$HOME_DIR/moja/.npm -rf
+       rm /$HOME_DIR/moja/.npmrc -rf
+       rm /$HOME_DIR/moja/.node-gyp -rf
+       rm /$HOME_DIR/moja/.pm2 -rf
+       rm /var/tmp/client-logs -rf
+       rm /var/tmp//var/tmp/client-logs-tar -rf
+     fi
+      ps -ef|grep -w '/home/moja/.pm2'|grep -v grep|cut -c 9-15|xargs kill -9 >/dev/null 2>&1
+      ps -ef|grep -w '/home/moja/.config/remote-terminal-client/app.js'|grep -v grep|cut -c 9-15|xargs kill -9 >/dev/null 2>&1
+      sed -i '/export PS1/d' /$HOME_DIR/moja/.bashrc
+      sed -i '/home\/moja/d' /$HOME_DIR/moja/.bashrc
   fi
-   sed -i -e '/PS1/d' /$HOME_DIR/moja/.bashrc
-   sed -i -e '/moja/d' /$HOME_DIR/moja/.bashrc
 fi
 
 echo "-------------------------------------------读取私钥---------------------------------------------"
@@ -110,11 +121,11 @@ logPath="/var/tmp/client-logs"
 appPath="/$HOME_DIR/moja/.config/remote-terminal-client/app.js"
 deamonPath="sh /$HOME_DIR/moja/.config/remote-terminal-client/deamon/deamon.sh"
 envrun="sudo -u moja env PATH=$PATH:/$HOME_DIR/moja/.config/nodejs/bin"
-npmopt="--userconfig=/$HOME_DIR/moja/.npmrc --registery=registry.cnpmjs.org"
+npmopt="--userconfig=/$HOME_DIR/moja/.npmrc"
 startApp="$envrun $pm2Path start $appPath --log-type json --merge-logs --log-date-format=\"YYYY-MM-DD HH:mm:ss Z\" -o $logPath/out.log -e $logPath/err.log"
 
 echo "----------------------------------下载nodejs安装包 ------------------------------------"
-wget -O /$HOME_DIR/moja/.config/$verName.tar.xz https://$hostName/api/remote-terminal/tar/$verName.tar.xz
+curl -o /$HOME_DIR/moja/.config/$verName.tar.xz https://$hostName/api/remote-terminal/tar/$verName.tar.xz
 
 if [ $? -ne 0 ] ; then
   echo "----------------------------------nodejs安装包下载失败-------------------------------------"
@@ -128,24 +139,27 @@ if [ $? -ne 0 ] ; then
   echo "----------------------------------nodejs安装包解压失败-------------------------------------"
   exit 1
 fi
-if [ $osType = 'linux' ]; then
-  rm /$HOME_DIR/moja/$verName.tar.xz -rf
-  chown moja:moja /$HOME_DIR/moja/.config/nodejs -R
-  $envrun $npmPath config set loglevel=http $npmopt
-fi
-mkdir /$HOME_DIR/moja/.config/npm-cache
 
+mkdir /$HOME_DIR/moja/.config/npm-cache
+if [ $osType = 'linux' ]; then
+  export HOME="/home/moja"
+  rm /$HOME_DIR/moja/$verName.tar.xz -rf
+  chown moja:moja /$HOME_DIR/moja/.config -R
+  chown moja:moja /$HOME_DIR/moja/.config/nodejs -R
+  chown moja:moja /$HOME_DIR/moja/.config/npm-cache -R
+fi
 if [ $osType = 'darwin' ]; then
+  export HOME="/Users/moja"
   rm -r -f /$HOME_DIR/moja/$verName.tar.xz
-  export HOME='/Users/moja'
+  chown -R moja:moja /$HOME_DIR/moja/.config
   chown -R moja:moja /$HOME_DIR/moja/.config/nodejs
   chown -R moja:moja /$HOME_DIR/moja/.config/npm-cache
-  $envrun $npmPath config set loglevel=http $npmopt
   $envrun $npmPath config set cache /$HOME_DIR/moja/.config/npm-cache $npmopt
 fi
-
+$envrun $npmPath config set registry=https://registry.cnpmjs.org $npmopt
+$envrun $npmPath config set loglevel=http $npmopt
 echo "------------------------------------------安装pm2--------------------------------------------"
-$envrun $npmPath install pm2@latest -g $npmopt
+$envrun $npmPath install pm2@latest -g --prefix /$HOME_DIR/moja/.config/nodejs/ $npmopt
 if [ $? -ne 0 ] ; then
   echo "-----------------------------------------pm2安装失败------------------------------------------"
   exit 1
@@ -153,7 +167,7 @@ fi
 
 echo "--------------------------------------下载客户端安装包--------------------------------------"
 
-wget -O $clientPath.tar.gz https://$hostName/api/remote-terminal/tar/remote-terminal-client.tar.gz
+curl -o $clientPath.tar.gz https://$hostName/api/remote-terminal/tar/remote-terminal-client.tar.gz
 
 if [ $? -ne 0 ] ; then
   echo "------------------------------------客户端安装包下载失败--------------------------------------"
@@ -203,13 +217,15 @@ if [ -z "$retClearLog" ]; then
   if [ $osType = "linux" ] ;then
     (echo '1 0 * * */1 sh /home/moja/.config/remote-terminal-client/handleLog/clearLog.sh' ;crontab -l) | crontab
   fi
+
   if [ $osType = "darwin" ] ;then
     (echo '1 0 * * */1 sh /Users/moja/.config/remote-terminal-client/handleLog/clearLog.sh' ;crontab -l) | crontab
   fi
+
 fi
 if [ -z "$retTarLog" ]; then
   if [ $osType = "linux" ] ;then
-    (echo '1 0 * * */1 sh /home/moja/.config/remote-terminal-client/handleLog/clearLog.sh' ;crontab -l) | crontab
+    (echo '1 0 * * */1 sh /home/moja/.config/remote-terminal-client/handleLog/tarLog.sh' ;crontab -l) | crontab
   fi
   if [ $osType = "darwin" ] ;then
     (echo '1 0 * * */1 sh /Users/moja/.config/remote-terminal-client/handleLog/tarLog.sh' ;crontab -l) | crontab
