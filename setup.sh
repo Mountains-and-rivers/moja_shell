@@ -1,5 +1,5 @@
 
-hostName="120.27.212.27:443"
+hostName="terminal.moja-lab.com"
 VERSION=v8.12.0
 
 HOME_DIR='home'
@@ -20,6 +20,12 @@ else
   exit 1
 fi
 
+echo "--------------------------------------安装gcc---------------------------------------"
+g++ -v
+if [ $? -ne 0 ] ; then
+  yum install gcc-c++ -y
+fi
+
 if ! id moja
 then
   echo "----------------------------------------创建moja用户------------------------------------------"
@@ -37,11 +43,6 @@ then
     createhomedir -c -u moja
   elif [ $osType = "linux" ] ;then
     useradd -s /bin/bash -d /$HOME_DIR/moja  -U moja -m
-    echo "--------------------------------------安装gcc---------------------------------------"
-    g++ -v
-    if [ $? -ne 0 ] ; then
-       yum install gcc-c++ -y
-    fi
   else
     echo "--------------------------------------不支持的系统类型---------------------------------------"
   fi
