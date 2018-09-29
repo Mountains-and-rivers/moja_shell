@@ -32,6 +32,7 @@ if [ $osType = 'darwin' ]; then
   r2=$?
   memUsed=`top -l 1|awk '/PhysMem/{print $6}'|awk -F 'M' '{print $1}'`
   r3=$?
+  cpuUsage=${cpuUsage%?}
   currentTimeStamp=`python -c 'import time; print(int(time.time()*1000*1000*1000))'`
 fi
 

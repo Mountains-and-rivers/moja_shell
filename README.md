@@ -1,7 +1,7 @@
 # Moja 远程终端安装脚本
 Moja Remote Terminal Setup Script
 
-Link: https://terminal.mujiang.info/
+Link: https://terminal.moja-lab.com/
 
 ### 什么是远程终端
 如果你：
@@ -10,7 +10,7 @@ Link: https://terminal.mujiang.info/
 * 有设备放在公司，复杂的网络环境无法做到内网穿透
 * 有设备放在用户厂房，无法控制网络条件，每次出问题都要上门服务
 * 有大一堆设备，想要批量上传文件、批量执行脚本
-* 设备经常
+* 设备经常无故死机，想要监控 cpu、内存用量
 
 那么远程终端，通过本脚本一键安装后，只要设备可以联上互联网，只要你能找到 Chrome 浏览器，就能随时通过 SSH 登录到设备。
 
@@ -19,6 +19,8 @@ Link: https://terminal.mujiang.info/
 * ✔︎ Raspbian
 * ✔︎ Debian
 * ✔︎ CentOS
+* ✔︎ Ubuntu
+* ✔︎ RedHat
 * ✔︎ hassbian
 
 目前远程终端尚是 Beta 版，可能有些许问题，大家可以在 Issue 中提问题，我们将竭尽全力改善产品。
@@ -26,8 +28,9 @@ Link: https://terminal.mujiang.info/
 ### 团队
 我们是阿里云 Moja 解决方案实验室团队，针对物联网的应用场景给出落地的解决方案，推动物联网应用的发展。
 
-`联系我们：
-邮件：lichen.dlc@alibaba-inc.com`
+联系我们：
+
+`邮件：lichen.dlc@alibaba-inc.com`
 
 ### 目录结构
 * setup.sh 安装脚本
@@ -43,4 +46,4 @@ Link: https://terminal.mujiang.info/
   * clearLog.sh 日志清除脚本 功能：每隔一周清除一次 维持7天以内到日志文件数量
   * tarlog.sh  日志打包脚本 功能：每天打包一次日志
 * useAge 监控数据采集
-  * useAge.sh  监控数据采集脚本 功能：采集内存 cpu 磁盘使用率
+  * useAge.sh 监控数据采集脚本 功能：采集内存 cpu 磁盘使用率

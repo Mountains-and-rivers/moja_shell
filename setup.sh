@@ -20,12 +20,6 @@ else
   exit 1
 fi
 
-echo "--------------------------------------安装gcc---------------------------------------"
-g++ -v
-if [ $? -ne 0 ] ; then
-  yum install gcc-c++ -y
-fi
-
 if ! id moja
 then
   echo "----------------------------------------创建moja用户------------------------------------------"
@@ -42,6 +36,11 @@ then
     dscl . -append /Groups/moja GroupMembership moja
     createhomedir -c -u moja
   elif [ $osType = "linux" ] ;then
+    echo "--------------------------------------安装gcc---------------------------------------"
+    g++ -v
+    if [ $? -ne 0 ] ; then
+      yum install gcc-c++ -y
+    fi
     useradd -s /bin/bash -d /$HOME_DIR/moja  -U moja -m
   else
     echo "--------------------------------------不支持的系统类型---------------------------------------"
@@ -67,8 +66,6 @@ else
         rm -r -f /var/tmp/client-logs
         rm -r -f /var/tmp//var/tmp/client-logs-tar
      fi
-     kill -9 $(ps -ef|grep "/Users/moja/.pm2"|awk '$0 !~/grep/ {print $2}'|tr -s '\n' ' ') >/dev/null 2>&1
-     kill -9 $(ps -ef|grep "/Users/moja/.config/remote-terminal-client/app.js"|awk '$0 !~/grep/ {print $2}'|tr -s '\n' ' ') >/dev/null 2>&1
      sed -i '' '/export PS1/d' /$HOME_DIR/moja/.bashrc
      sed -i '' '/Users\/moja/d' /$HOME_DIR/moja/.bashrc
   fi
@@ -90,13 +87,19 @@ else
        rm /var/tmp/client-logs -rf
        rm /var/tmp//var/tmp/client-logs-tar -rf
      fi
-      ps -ef|grep -w '/home/moja/.pm2'|grep -v grep|cut -c 9-15|xargs kill -9 >/dev/null 2>&1
-      ps -ef|grep -w '/home/moja/.config/remote-terminal-client/app.js'|grep -v grep|cut -c 9-15|xargs kill -9 >/dev/null 2>&1
       sed -i '/export PS1/d' /$HOME_DIR/moja/.bashrc
       sed -i '/home\/moja/d' /$HOME_DIR/moja/.bashrc
   fi
 fi
 
+if [ $osType = "darwin" ] ;then
+  kill -9 $(ps -ef|grep "/Users/moja/.pm2"|awk '$0 !~/grep/ {print $2}'|tr -s '\n' ' ') >/dev/null 2>&1
+  kill -9 $(ps -ef|grep "/Users/moja/.config/remote-terminal-client/app.js"|awk '$0 !~/grep/ {print $2}'|tr -s '\n' ' ') >/dev/null 2>&1
+fi
+if [ $osType = "linux" ] ;then
+  ps -ef|grep -w '/home/moja/.pm2'|grep -v grep|cut -c 9-15|xargs kill -9 >/dev/null 2>&1
+  ps -ef|grep -w '/home/moja/.config/remote-terminal-client/app.js'|grep -v grep|cut -c 9-15|xargs kill -9 >/dev/null 2>&1
+fi
 echo "-------------------------------------------读取私钥---------------------------------------------"
 mkdir /$HOME_DIR/moja/.config
 touch /$HOME_DIR/moja/.config/privateKey.js
@@ -183,7 +186,7 @@ if [ $? -ne 0 ] ; then
   exit 1
 fi
 
-chown moja:moja /$HOME_DIR/moja/.config/remote-terminal-client -R
+chown -R moja:moja /$HOME_DIR/moja/.config/remote-terminal-client
 
 echo "-------------------------------------下载客户端项目依赖-------------------------------------"
 
