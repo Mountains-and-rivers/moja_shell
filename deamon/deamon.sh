@@ -1,26 +1,42 @@
 #!/bin/bash
 
-# pm2 守护脚本
+#客户端进程守护脚本
+HOME_DIR=""
+USER_DIR=""
 
 osType=`uname -s|tr '[A-Z]' '[a-z]'`
-
 if [ $osType = "darwin" ] ;then
-  HOME='Users'
+  HOME_DIR='Users'
 fi
 if [ $osType = "linux" ] ;then
-  HOME='home'
+  HOME_DIR='home'
 fi
 
-envrun="sudo -u moja env PATH=$PATH:/$HOME_DIR/moja/.config/nodejs/bin"
+if [ -f ~/.moja/install-mode ] ; then
+  USER_DIR=~/.moja
+elif [ -f "/$HOME_DIR/moja/.moja/install-mode" ] ; then
+  USER_DIR=/$HOME_DIR/moja/.moja
+else
+  exit 1
+fi
 
-logPath="/var/tmp/client-logs"
-appPath="/$HOME/moja/.config/remote-terminal-client/app.js"
-pm2Path="/$HOME/moja/.config/nodejs/bin/pm2"
-
+currlVersion=`cat $USER_DIR/moja-version|tr -d '\n'`
+appPath="$USER_DIR/client/remote-terminal-client-v$currlVersion/app.js"
+nodePath="$USER_DIR/nodejs/bin/node"
 tmp=`ps -ef | grep $appPath | grep -v grep`
 
-if [ -z "$tmp" ]; then 
-  $envrun $pm2Path start $appPath --log-type json --merge-logs --log-date-format="YYYY-MM-DD HH:mm:ss Z" -o $logPath/out.log -e $logPath/err.log
+if [ -f ~/.moja/install-mode ] ; then
+  if [ -z "$tmp" ]; then
+    node $USER_DIR/client/start.js $currlVersion npm
+  fi
+elif [ -f "/$HOME_DIR/moja/.moja/install-mode" ] ; then
+  if [ -z "$tmp" ]; then
+    sudo su - moja -c "env PATH=$PATH:$USER_DIR/nodejs/bin $nodePath $USER_DIR/client/start.js"
+  fi
+else
+  exit 1
 fi
+
+
 
 
